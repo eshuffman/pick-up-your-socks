@@ -1,37 +1,58 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 function App() {
-  const [apiPing, setApiPing] = useState("")
+  const [goals, setGoals] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  const pingAPI = () => {
-    fetch('http://localhost:5160/api/health')
+  useEffect(() => {
+    fetch('http://localhost:5160/api/goals')
       .then((response) => {
         if (!response.ok) {
-          setApiPing("Response was not ok.")
+          throw new Error('Failed to fetch goals.')
         }
-        return response.json(); // .NET typically returns JSON data
+
+        return response.json()
       })
-      .then((response) => {
-        setApiPing(JSON.stringify(response.data));
+      .then((data) => {
+        setGoals(data)
       })
       .catch((err) => {
-        setApiPing(err.message);
-      });
-  };
+        setError(err.message)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [])
 
   return (
     <div>
-      <button
-        onClick={pingAPI}
-      >
-        Hello!
-      </button>
+      <h1>Pick Up Your Socks!!!</h1>
 
-      <div>{apiPing}</div>
+      {loading && <p>Loading goals...</p>}
+
+      {error && <p>Error: {error}</p>}
+
+      {!loading && !error && goals.length === 0 && (
+        <p>You don't have any goals yet. Add one to get started!</p>
+      )}
+
+      {!loading && !error && goals.length > 0 && (
+        <ul>
+          {goals.map((goal) => (
+            <li key={goal.id}>
+              <strong>{goal.title}</strong>
+
+              {goal.description && <p>{goal.description}</p>}
+
+              <p>
+                Status: {goal.isCompleted ? 'Completed' : 'In progress'}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
