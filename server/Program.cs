@@ -1,3 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using server.Data;
+using server.Services;
+using server.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Define a CORS policy name
@@ -15,7 +20,12 @@ builder.Services.AddCors(options =>
                       });
 });
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=pick-up-your-socks.db"));
+
 builder.Services.AddControllers();
+builder.Services.AddScoped<IGoalService, GoalService>();
+builder.Services.AddScoped<IGoalRepository, GoalRepository>();
 var app = builder.Build();
 
 // 3. Enable CORS middleware before Authorization

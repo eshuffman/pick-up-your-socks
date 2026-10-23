@@ -1,8 +1,17 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 
+type Goal = {
+  id: number
+  title: string
+  description: string | null
+  isCompleted: boolean
+  createdAt: string
+  completedAt: string | null
+}
+
 function App() {
-  const [goals, setGoals] = useState([])
+  const [goals, setGoals] = useState<Goal[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
