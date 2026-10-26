@@ -17,6 +17,10 @@ function App() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
+  const completedCount = goals.filter((goal) => goal.isCompleted).length
+  const totalCount = goals.length
+  const progressPercentage = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100)
+
 
   useEffect(() => {
     fetch("http://localhost:5160/api/goals")
@@ -172,6 +176,39 @@ function App() {
         </button>
       </form>
 
+{!loading && !error && goals.length > 0 && (
+  <section className="progress-summary" aria-label="Goal progress">
+    <div className="progress-copy">
+      <p className="eyebrow">YOUR PROGRESS</p>
+      <p className="progress-count">
+        <strong>{completedCount}</strong> of {totalCount} goals completed
+      </p>
+    </div>
+
+    <div
+      className="progress-track"
+      role="progressbar"
+      aria-label="Goals completed"
+      aria-valuenow={completedCount}
+      aria-valuemin={0}
+      aria-valuemax={totalCount}
+    >
+      <div
+        className="progress-fill"
+        style={{ width: `${progressPercentage}%` }}
+      />
+    </div>
+
+    <p className="progress-message">
+      {progressPercentage === 100
+        ? "Look at you — all goals completed!"
+        : progressPercentage >= 50
+          ? "You're making lovely progress."
+          : "Every little step counts."}
+    </p>
+  </section>
+)}
+
       {loading && <p>Loading goals...</p>}
 
       {error && <p>Error: {error}</p>}
@@ -183,7 +220,9 @@ function App() {
       {!loading && !error && goals.length > 0 && (
         <ul>
           {goals.map((goal) => (
-            <li key={goal.id}>
+            <li key={goal.id}
+              className={goal.isCompleted ? 'goal-card completed' : 'goal-card'}
+            >
               <strong>{goal.title}</strong>
 
               {goal.description && <p>{goal.description}</p>}
